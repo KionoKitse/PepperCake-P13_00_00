@@ -17,15 +17,10 @@
   
 */
 
-int led = 1;    //Physical pin 6
-int sense = A2; //Physical pin 3
+int led = 4;    //Physical pin 3
 int button = 3; //Physical pin 2
-int mosfet = 2; //Physical pin 7
+int mosfet = 0; //Physical pin 5
 
-int cutoff = 825;
-int voltage = 900;
-int index = 0;
-int readings[3];
 
 unsigned long cycleStart;
 float period = 10000;
@@ -41,14 +36,11 @@ byte onCt = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  analogReference(INTERNAL);
-  
   bounce.attach(button, INPUT);
   bounce.interval(5);
   
   pinMode(led,OUTPUT);
   pinMode(mosfet,OUTPUT);
-  pinMode(sense,INPUT);
 
   cycleStart = millis();
   RegisterBlink();
@@ -60,20 +52,14 @@ void loop() {
     //Do this if it is time to turn on the mosfet (start of the period)
     if((millis()-cycleStart)>period){
       digitalWrite(mosfet,HIGH);
-      analogWrite(led, 50);
+      analogWrite(led, HIGH);
       cycleStart = millis();
     }
     //Do this if it is time to turn off the mosfet
     if((millis()-cycleStart)>onTime){
-      voltage = analogRead(sense);
       digitalWrite(mosfet, LOW);
       digitalWrite(led,LOW);
     }
-  }
-  
-  //Check low battery
-  if(voltage < cutoff){
-    LowBat();
   }
   
   //Check if need to enter menu
@@ -145,14 +131,6 @@ void loop() {
   
 }
 
-void LowBat(){
-  while (true){
-    digitalWrite(led, HIGH);
-    delay(1000);
-    digitalWrite(led,LOW);
-    delay(1000);
-  }
-}
 void RegisterBlink(){
   for(byte i=0; i<6; i++){
     digitalWrite(led, HIGH);
